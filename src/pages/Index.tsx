@@ -124,6 +124,34 @@ const Index = () => {
           </div>
         </section>
 
+        <section className="py-16 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <h2 className="text-4xl font-bold mb-8 text-center">
+              <span className="text-gradient">Популярные категории</span>
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto mb-16">
+              {[
+                { icon: '📱', name: 'Смартфоны', count: '250+ моделей', color: 'primary' },
+                { icon: '💻', name: 'Ноутбуки', count: '180+ моделей', color: 'secondary' },
+                { icon: '🎧', name: 'Аксессуары', count: '500+ товаров', color: 'accent' },
+                { icon: '📺', name: 'Телевизоры', count: '120+ моделей', color: 'primary' },
+              ].map((cat, idx) => (
+                <Card
+                  key={idx}
+                  className="glass-card hover-glow cursor-pointer group text-center p-8 transition-transform hover:scale-105"
+                  onClick={() => scrollToSection('catalog')}
+                >
+                  <div className="text-6xl mb-4 transition-transform group-hover:scale-110">
+                    {cat.icon}
+                  </div>
+                  <h3 className="text-xl font-bold mb-2">{cat.name}</h3>
+                  <p className="text-muted-foreground text-sm">{cat.count}</p>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="py-16">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between mb-8">
