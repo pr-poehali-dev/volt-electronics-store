@@ -4,6 +4,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Separator } from '@/components/ui/separator';
 
 interface Product {
   id: number;
@@ -19,6 +21,7 @@ const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [cart, setCart] = useState<number[]>([]);
   const [favorites, setFavorites] = useState<number[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   const products: Product[] = [
     { id: 1, name: 'iPhone 15 Pro Max', price: 129990, image: '📱', category: 'phones', rating: 5, badge: 'ХИТ' },
@@ -35,6 +38,30 @@ const Index = () => {
 
   const addToCart = (id: number) => {
     setCart([...cart, id]);
+  };
+
+  const removeFromCart = (index: number) => {
+    const newCart = [...cart];
+    newCart.splice(index, 1);
+    setCart(newCart);
+  };
+
+  const getCartItems = () => {
+    const itemCounts = new Map<number, number>();
+    cart.forEach(id => {
+      itemCounts.set(id, (itemCounts.get(id) || 0) + 1);
+    });
+    return Array.from(itemCounts.entries()).map(([id, count]) => ({
+      product: products.find(p => p.id === id)!,
+      count
+    }));
+  };
+
+  const getTotalPrice = () => {
+    return cart.reduce((sum, id) => {
+      const product = products.find(p => p.id === id);
+      return sum + (product?.price || 0);
+    }, 0);
   };
 
   const toggleFavorite = (id: number) => {
@@ -85,14 +112,88 @@ const Index = () => {
                 </span>
               )}
             </Button>
-            <Button className="bg-primary hover:bg-primary/90 relative">
-              <Icon name="ShoppingCart" size={20} />
-              {cart.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-accent text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                  {cart.length}
-                </span>
-              )}
-            </Button>
+            <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
+              <SheetTrigger asChild>
+                <Button className="bg-primary hover:bg-primary/90 relative">
+                  <Icon name="ShoppingCart" size={20} />
+                  {cart.length > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-accent text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                      {cart.length}
+                    </span>
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent className="w-full sm:max-w-lg">
+                <SheetHeader>
+                  <SheetTitle className="text-2xl flex items-center gap-2">
+                    <Icon name="ShoppingCart" size={24} className="text-primary" />
+                    Корзина
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="mt-8">
+                  {cart.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Icon name="ShoppingBag" size={64} className="text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground text-lg">Корзина пуста</p>
+                      <p className="text-sm text-muted-foreground mt-2">Добавьте товары из каталога</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                        {getCartItems().map(({ product, count }, idx) => (
+                          <Card key={idx} className="glass-card">
+                            <CardContent className="p-4">
+                              <div className="flex gap-4">
+                                <div className="text-4xl">{product.image}</div>
+                                <div className="flex-1">
+                                  <h4 className="font-semibold mb-1">{product.name}</h4>
+                                  <p className="text-sm text-muted-foreground mb-2">Количество: {count}</p>
+                                  <p className="text-lg font-bold text-primary">
+                                    {(product.price * count).toLocaleString('ru-RU')} ₽
+                                  </p>
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="hover:text-destructive"
+                                  onClick={() => {
+                                    const index = cart.findIndex(id => id === product.id);
+                                    if (index !== -1) removeFromCart(index);
+                                  }}
+                                >
+                                  <Icon name="Trash2" size={18} />
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                      <Separator className="my-6" />
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center text-lg">
+                          <span className="font-semibold">Итого:</span>
+                          <span className="text-2xl font-bold text-primary">
+                            {getTotalPrice().toLocaleString('ru-RU')} ₽
+                          </span>
+                        </div>
+                        <Button className="w-full bg-accent hover:bg-accent/90 text-lg py-6">
+                          <Icon name="CreditCard" size={20} className="mr-2" />
+                          Оформить заказ
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => setCart([])}
+                        >
+                          <Icon name="Trash2" size={18} className="mr-2" />
+                          Очистить корзину
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </nav>
       </header>
