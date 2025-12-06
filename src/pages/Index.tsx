@@ -31,6 +31,8 @@ const Index = () => {
     { id: 8, name: 'LG OLED 55"', price: 129990, image: '📺', category: 'tv', rating: 5 },
   ];
 
+  const popularProducts = products.filter(p => [1, 3, 5, 7].includes(p.id));
+
   const addToCart = (id: number) => {
     setCart([...cart, id]);
   };
@@ -118,6 +120,72 @@ const Index = () => {
                   Акции
                 </Button>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-4xl font-bold">
+                <span className="text-gradient">Популярные товары</span>
+              </h2>
+              <Button variant="ghost" className="text-primary hover:text-primary/80">
+                Смотреть все
+                <Icon name="ArrowRight" size={16} className="ml-2" />
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {popularProducts.map((product) => (
+                <Card key={product.id} className="glass-card hover-glow group overflow-hidden">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-3">
+                      {product.badge && (
+                        <Badge className="bg-accent text-white">{product.badge}</Badge>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="ml-auto h-8 w-8 hover:bg-transparent"
+                        onClick={() => toggleFavorite(product.id)}
+                      >
+                        <Icon
+                          name="Heart"
+                          size={20}
+                          className={favorites.includes(product.id) ? 'fill-secondary text-secondary' : 'text-muted-foreground'}
+                        />
+                      </Button>
+                    </div>
+                    <div className="text-6xl mb-4 transition-transform group-hover:scale-110">
+                      {product.image}
+                    </div>
+                    <h3 className="font-bold text-lg mb-2">{product.name}</h3>
+                    <div className="flex items-center gap-1 mb-3">
+                      {[...Array(5)].map((_, i) => (
+                        <Icon
+                          key={i}
+                          name={i < Math.floor(product.rating) ? 'Star' : 'StarOff'}
+                          size={16}
+                          className={i < Math.floor(product.rating) ? 'text-accent fill-accent' : 'text-muted'}
+                        />
+                      ))}
+                      <span className="text-sm text-muted-foreground ml-1">({product.rating})</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl font-bold text-primary">
+                        {product.price.toLocaleString('ru-RU')} ₽
+                      </span>
+                      <Button
+                        size="sm"
+                        onClick={() => addToCart(product.id)}
+                        className="bg-secondary hover:bg-secondary/90"
+                      >
+                        <Icon name="ShoppingBag" size={16} />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </div>
         </section>
