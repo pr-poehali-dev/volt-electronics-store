@@ -18,6 +18,7 @@ interface Product {
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [cart, setCart] = useState<number[]>([]);
+  const [favorites, setFavorites] = useState<number[]>([]);
 
   const products: Product[] = [
     { id: 1, name: 'iPhone 15 Pro Max', price: 129990, image: '📱', category: 'phones', rating: 5, badge: 'ХИТ' },
@@ -32,6 +33,14 @@ const Index = () => {
 
   const addToCart = (id: number) => {
     setCart([...cart, id]);
+  };
+
+  const toggleFavorite = (id: number) => {
+    if (favorites.includes(id)) {
+      setFavorites(favorites.filter(fav => fav !== id));
+    } else {
+      setFavorites([...favorites, id]);
+    }
   };
 
   const scrollToSection = (section: string) => {
@@ -65,14 +74,24 @@ const Index = () => {
             ))}
           </div>
 
-          <Button className="bg-primary hover:bg-primary/90 relative">
-            <Icon name="ShoppingCart" size={20} />
-            {cart.length > 0 && (
-              <span className="absolute -top-2 -right-2 bg-accent text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                {cart.length}
-              </span>
-            )}
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" className="relative hover:text-secondary">
+              <Icon name="Heart" size={22} />
+              {favorites.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-secondary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                  {favorites.length}
+                </span>
+              )}
+            </Button>
+            <Button className="bg-primary hover:bg-primary/90 relative">
+              <Icon name="ShoppingCart" size={20} />
+              {cart.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-accent text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                  {cart.length}
+                </span>
+              )}
+            </Button>
+          </div>
         </nav>
       </header>
 
@@ -110,25 +129,46 @@ const Index = () => {
             </h2>
 
             <Tabs defaultValue="all" className="w-full">
-              <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-5 mb-8">
+              <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-6 mb-8">
                 <TabsTrigger value="all">Все</TabsTrigger>
                 <TabsTrigger value="phones">Смартфоны</TabsTrigger>
                 <TabsTrigger value="laptops">Ноутбуки</TabsTrigger>
                 <TabsTrigger value="accessories">Аксессуары</TabsTrigger>
                 <TabsTrigger value="tv">ТВ</TabsTrigger>
+                <TabsTrigger value="favorites">
+                  <Icon name="Heart" size={16} className="mr-1" />
+                  Избранное
+                </TabsTrigger>
               </TabsList>
 
-              {['all', 'phones', 'laptops', 'accessories', 'tv'].map((category) => (
+              {['all', 'phones', 'laptops', 'accessories', 'tv', 'favorites'].map((category) => (
                 <TabsContent key={category} value={category}>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {products
-                      .filter((p) => category === 'all' || p.category === category)
+                      .filter((p) => {
+                        if (category === 'favorites') return favorites.includes(p.id);
+                        return category === 'all' || p.category === category;
+                      })
                       .map((product) => (
                         <Card key={product.id} className="glass-card hover-glow group overflow-hidden">
                           <CardContent className="p-6">
-                            {product.badge && (
-                              <Badge className="mb-3 bg-accent text-white">{product.badge}</Badge>
-                            )}
+                            <div className="flex items-start justify-between mb-3">
+                              {product.badge && (
+                                <Badge className="bg-accent text-white">{product.badge}</Badge>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="ml-auto h-8 w-8 hover:bg-transparent"
+                                onClick={() => toggleFavorite(product.id)}
+                              >
+                                <Icon
+                                  name="Heart"
+                                  size={20}
+                                  className={favorites.includes(product.id) ? 'fill-secondary text-secondary' : 'text-muted-foreground'}
+                                />
+                              </Button>
+                            </div>
                             <div className="text-6xl mb-4 transition-transform group-hover:scale-110">
                               {product.image}
                             </div>
